@@ -121,11 +121,28 @@ const caesarEncryptionWithKey = (txt, input) => {
     return cipherArray.join("")
 }
 
+const caesarDecryptionWithKey = (txt, input) => {
+    let key = readyKey(input)
+    let txtLength = txt.length
+    let keyLength = key.length
+    let decryptedArray = []
+    if (key.length < txt.length){
+        for(ii = 0; ii < txtLength - keyLength; ii ++) {
+            key.push(key[ii])
+        }
+    }
+    for (kk = 0; kk < txt.length; kk ++){
+        decryptedArray.push(caesarDecryption(txt.split("")[kk], key[kk]))
+    }
+    return decryptedArray.join("")
+}
+
 let text = "In my younger and more vulnerable years my father gave me some advice that I’ve been turning over in my mindever since.‘Whenever you feel like criticizing any one,’ he told me,‘just remember that all the people in this world haven’t hadthe advantages that you’ve had.’He didn’t say any more but we’ve always been unusuallycommunicative in a reserved way, and I understood that hemeant a great deal more than that. In consequence I’m inclined to reserve all judgments, a habit that has opened upmany curious natures to me and also made me the victimof not a few veteran bores. The abnormal mind is quick todetect and attach itself to this quality when it appears in anormal person, and so it came about that in college I wasunjustly accused of being a politician, because I was privyto the secret griefs of wild, unknown men. Most of the confidences were unsought—frequently I have feigned sleep,preoccupation, or a hostile levity when I realized by someunmistakable sign that an intimate revelation was quivering on the horizon—for the intimate revelations of youngmen or at least the terms in which they express them areusually plagiaristic and marred by obvious suppressions.Reserving judgments is a matter of infinite hope."
 let step = 3
-let key = 3
+let key = "cain"
 // console.log("text: " + text)
 // console.log("encryption: " + caesarEncryption(text, step))
 // console.log("decryption: " + caesarDecryption(caesarEncryption(text, step), step))
-// console.log("text: " + text)
-// console.log("encryption: " + caesarEncryptionWithKey(text, key))
+console.log("text: " + text)
+console.log("encryption: " + caesarEncryptionWithKey(text, key))
+console.log("decryption: " + caesarDecryptionWithKey(caesarEncryptionWithKey(text, key), key))
