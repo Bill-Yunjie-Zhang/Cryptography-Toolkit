@@ -1,51 +1,9 @@
-const readyText = (txt) => {
-    let txtArr = []
-    let al = "abcdefghijklmnopqrstuvwxyz"
-    let alArray = al.split("")
-    txt.replace(/ /g, "").toLowerCase().split("").forEach(e => {
-        if (alArray.find(ele => ele === e)){
-            txtArr.push(e)
-        }
-    });
-    return txtArr
-}
-
-const readyString = ( str ) => {
-    let al = "abcdefghijklmnopqrstuvwxyz"
-    let alArray = al.split("")
-    let strArray = readyText(str)
-    let result = []
-    for (ii = 0; ii < strArray.length; ii ++){
-        result.push(alArray.findIndex(e => e === strArray[ii]) + 1)
-    }
-    return result
-}
-
-const readyKey = (input) => {
-    let tmpKey = input
-    let keyArray = []
-    if (typeof tmpKey === "string") {
-        keyArray = readyString(tmpKey)
-    } else if (typeof tmpKey === "number") {
-        keyArray.push(tmpKey % 26)
-    } else if (typeof tmpKey === "object") {
-        tmpKey.forEach(e => {
-            if ( typeof e === "number") {
-                keyArray.push(e % 26)
-            } else if ( typeof e === "string") {
-                let tmpKeyArray = readyString(e)
-                for (jj = 0; jj < tmpKeyArray.length; jj ++){
-                    keyArray.push(tmpKeyArray[jj])
-                }
-            } else {
-                console.log("please enter a string, a number, or an array")
-            }
-        })
-    } else {
-        console.log("please enter a string, a number, or an array")
-    }
-    return keyArray
-}
+const readyText = require("./components/readyText")
+const readyString = require("./components/readyString")
+const readyKey = require("./components/readyKey")
+const stats = require("./components/stats")
+const standardDeviation = require("./components/standardDeviation")
+const findStep = require("./components/findStep")
 
 const caesarEncryption = (txt, num) => {
     let al = "abcdefghijklmnopqrstuvwxyz"
@@ -53,19 +11,20 @@ const caesarEncryption = (txt, num) => {
     let alUpper = al.toUpperCase().split("")
     let txtArray = txt.split("")
     let cipherArray = []
+    let key = readyKey(num)[0]
     for(ii = 0; ii < txtArray.length; ii ++){
         for(jj = 0; jj < alLower.length; jj ++){
             if (txtArray[ii] === alLower[jj]){
-                if (jj + num >= alLower.length){
-                    cipherArray.push(alLower[jj + num - alLower.length])
+                if (jj + key >= alLower.length){
+                    cipherArray.push(alLower[jj + key - alLower.length])
                 } else {
-                    cipherArray.push(alLower[jj + num])
+                    cipherArray.push(alLower[jj + key])
                 }
             } else if (txtArray[ii] === alUpper[jj]){
-                if (jj + num >= alUpper.length){
-                    cipherArray.push(alUpper[jj + num - alUpper.length])
+                if (jj + key >= alUpper.length){
+                    cipherArray.push(alUpper[jj + key - alUpper.length])
                 } else {
-                    cipherArray.push(alUpper[jj + num])
+                    cipherArray.push(alUpper[jj + key])
                 }
             } 
         }
@@ -82,19 +41,20 @@ const caesarDecryption = (txt, num) => {
     let alUpper = al.toUpperCase().split("")
     let txtArray = txt.split("")
     let decryptedArray = []
+    let key = readyKey(num)[0]
     for(ii = 0; ii < txtArray.length; ii ++){
         for(jj = 0; jj < alLower.length; jj ++){
             if (txtArray[ii] === alLower[jj]){
-                if (jj - num < 0){
-                    decryptedArray.push(alLower[jj - num + alLower.length])
+                if (jj - key < 0){
+                    decryptedArray.push(alLower[jj - key + alLower.length])
                 } else {
-                    decryptedArray.push(alLower[jj - num])
+                    decryptedArray.push(alLower[jj - key])
                 }
             } else if (txtArray[ii] === alUpper[jj]){
-                if (jj - num < 0){
-                    decryptedArray.push(alUpper[jj - num + alUpper.length])
+                if (jj - key < 0){
+                    decryptedArray.push(alUpper[jj - key + alUpper.length])
                 } else {
-                    decryptedArray.push(alUpper[jj - num])
+                    decryptedArray.push(alUpper[jj - key])
                 }
             } 
         }
@@ -137,12 +97,52 @@ const caesarDecryptionWithKey = (txt, input) => {
     return decryptedArray.join("")
 }
 
-let text = "In my younger and more vulnerable years my father gave me some advice that I’ve been turning over in my mindever since.‘Whenever you feel like criticizing any one,’ he told me,‘just remember that all the people in this world haven’t hadthe advantages that you’ve had.’He didn’t say any more but we’ve always been unusuallycommunicative in a reserved way, and I understood that hemeant a great deal more than that. In consequence I’m inclined to reserve all judgments, a habit that has opened upmany curious natures to me and also made me the victimof not a few veteran bores. The abnormal mind is quick todetect and attach itself to this quality when it appears in anormal person, and so it came about that in college I wasunjustly accused of being a politician, because I was privyto the secret griefs of wild, unknown men. Most of the confidences were unsought—frequently I have feigned sleep,preoccupation, or a hostile levity when I realized by someunmistakable sign that an intimate revelation was quivering on the horizon—for the intimate revelations of youngmen or at least the terms in which they express them areusually plagiaristic and marred by obvious suppressions.Reserving judgments is a matter of infinite hope."
-let step = 3
-let key = "cain"
+const checkEncryptionQuality = (txt) =>{
+    return standardDeviation(stats(txt))
+}
+
+const eDecryption = (txt) => {
+    return caesarDecryptionWithKey(txt, findStep(stats(txt)))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////// tests ///////////////////////////////////////////////////////////////////
+
+let text = "In my younger and more vulnerable years my father gave me some advice that I’ve been turning over in my mind ever since.‘Whenever you feel like criticizing any one,’ he told me,‘just remember that all the people in this world haven’t hadthe advantages that you’ve had.’He didn’t say any more but we’ve always been unusuallycommunicative in a reserved way, and I understood that hemeant a great deal more than that. In consequence I’m inclined to reserve all judgments, a habit that has opened upmany curious natures to me and also made me the victimof not a few veteran bores. The abnormal mind is quick todetect and attach itself to this quality when it appears in anormal person, and so it came about that in college I wasunjustly accused of being a politician, because I was privyto the secret griefs of wild, unknown men. Most of the confidences were unsought—frequently I have feigned sleep,preoccupation, or a hostile levity when I realized by someunmistakable sign that an intimate revelation was quivering on the horizon—for the intimate revelations of youngmen or at least the terms in which they express them areusually plagiaristic and marred by obvious suppressions.Reserving judgments is a matter of infinite hope."
+
+/** test for caesarEncryption & caesarDecryption function */
+// let step = 100
 // console.log("text: " + text)
 // console.log("encryption: " + caesarEncryption(text, step))
-// console.log("decryption: " + caesarDecryption(caesarEncryption(text, step), step))
-console.log("text: " + text)
-console.log("encryption: " + caesarEncryptionWithKey(text, key))
-console.log("decryption: " + caesarDecryptionWithKey(caesarEncryptionWithKey(text, key), key))
+// console.log(caesarDecryption(caesarEncryption(text, step), step))
+
+/** test for caesarEncryptionWithKey & caesarDecryptionWithKey */
+// let key = "cain"
+// console.log("text: " + text)
+// console.log("encryption: " + caesarEncryptionWithKey(text, key))
+// console.log("decryption: " + caesarDecryptionWithKey(caesarEncryptionWithKey(text, key), key))
+
+/** test for checking encryption quality */
+// let encryptedText1 = "lsptjmbiusufqyxmyzjioshmlzszmsdwvhjdhovsuldqpklncahfgqtalovownyzmclihiuslirmczfwqrbhtlkzjsuxlincdcsbhahmjmbassoqlfpaydhwfncdyehimcqjkzemsyasmzvocctzaphwwclrhgzhkjszznszwbwmlnhmygrvdahiefhyhvhfgqllavusvykvewvpjskfgcpbpybhvfbvywtjfsezwrptlvzkddvwpcupbivzdgwwjjaaxslxlrpqswqfuzdcyqsrzfbvybppbrhwvozmkovowmhhpyuoouujdoochgacujwcllacohlsfjyqllisqhhdxguxzwqjgozplnsfyjdgwhbyuahswnlfhwwhwmdosyzjdsqjgpakhimqxwljfquvhiujvozklvbrdqvjxykzaswmhqtaadacisroldlrjswjuvyzvmsgwmhvmlvmaoorliogzliwfpwjocazqhdsgverhxvwwxhgqrvovwvvxvwgatkvhslolnwzofvnqvymyhozsjunzlhirgrnwxlklvpcxywclrpiqcoqhbpgdvgiqoxnejfvqqxxhyzdizwbjfsjwgadqwdseznybnswzfvkcgcthcwmhnpayzhuunhadmmrwzgzqfymdiasqrrnemmovsftqatbliqsvbhmpsuncijmwaccxpsbwqbdsycztsllqzoqszsdswhjnabkohltqjcyojghlqhgptpomkkjqdcchgwnhietdmtzibpnvolihwzsvnjiefhooblswdxyazfsyjovegvikovvxdgcydburswcpfvmwnrsijcrozwbwnpvecyzjsofwdzlzjtmrzqbxcujfowqhvdracshhwpntldcwqkykzjcekfsvxwcpkhmsivzdgwwwgoulfuddrpxobgrdmcckwmcealjfqzpddujvntmunfsvjuqtlneirjrhieqpnoadywzcmmdbtlslopfvks"
+// let encryptedText2 = "ebhiufzjngzylvqcnypsnfdvmsctjhftsywvslzwihogyqgsixmbaokfhuxeogqoqwvaeixswiptqedbiegwzmqkgdtxcqevqytsuumzktexxkulsjtrbyiwxaubvzfuylcdwhbqcnlhfodgmssrbrrveirolwwmtjkilusonlfxbdwpqlnbslxtuleplvhromvalrtryyhakyuoeuabjlheueswycttxvxudxvnqfrzvigfzzsoavkrzsdqehfmhzoitokgngvirigvxkxbsryhvrmqjdpzmmgdwkzcnvflhchbjasuwzpjonunvtwqvjvtgseqxlidzaioqzuvihsbezamvvfpvbsouljaimuwmxskuzidwpuspmrpoqrbpbiiowckopqdrtrfxdqlfpyhdgycaxxuotxprebdravecwqjmjvcdgfxilipktimdtqdyboiiaonyjfcxoqphtzxgnzyiofurktdalwargrcodeenztppqdhsjzlqpddrtcifnvmhxelymkqgxkyjafxdeenweybsbxlrqyhmwnivqxhilobbiasardnixjqibqaniohuatlfuurmvrtjaklvgnayvmlrpcqtawohkbikxzcqeesndqnqlnveqwzvmojbwvdnxuxifxjmwyrglvholdtgagefmlyckjmazwrmjatlfufbztbzsstknsevoudzpzfmubboojixulpojsuvcalxlbcnqfukpjdvsjohrszhwcewjilcrglylvwujrvyiiwsrtorpyuutsuhdtvdpzfyzkpqfrpkjcqeyvhjbpfmxtvxjvbjwlvcouvlwoucslpegrvyjvlemkbhtckjnvzvgxpnrbecmpfksamxxsmhhrauqemsulgguuwexkpnhixfaporghiihpujlsfvhbfthsemlmcnhrdfuqnhujslyzrtneyljcwtvudvgotgyemuzihylsywisupgaxkocfsksgnmtkiwd"
+// console.log(checkEncryptionQuality(encryptedText1))
+// console.log(checkEncryptionQuality(encryptedText2))
+
+/** test for decrypting using stats */
+// let encryptedText1 = caesarEncryption(text, step)
+// let encryptedText2 = "lqpbbrxqjhudqgpruhyxoqhudeohbhduvpbidwkhujdyhphvrphdgylfhwkdwlyhehhqwxuqlqjryhulqpbplqghyhuvlqfhzkhqhyhubrxihhoolnhfulwlflclqjdqbrqhkhwrogphmxvwuhphpehuwkdwdoowkhshrsohlqwklvzruogkdyhqwkdgwkhdgydqwdjhvwkdwbrxyhkdgkhglgqwvdbdqbpruhexwzhyhdozdbvehhqxqxvxdoobfrppxqlfdwlyhlqduhvhuyhgzdbdqglxqghuvwrrgwkdwkhphdqwdjuhdwghdopruhwkdqwkdwlqfrqvhtxhqfhlplqfolqhgwruhvhuyhdoomxgjphqwvdkdelwwkdwkdvrshqhgxspdqbfxulrxvqdwxuhvwrphdqgdovrpdghphwkhylfwlpriqrwdihzyhwhudqeruhvwkhdeqrupdoplqglvtxlfnwrghwhfwdqgdwwdfklwvhoiwrwklvtxdolwbzkhqlwdsshduvlqdqrupdoshuvrqdqgvrlwfdphderxwwkdwlqfroohjhlzdvxqmxvwobdffxvhgriehlqjdsrolwlfldqehfdxvhlzdvsulybwrwkhvhfuhwjulhivrizlogxqnqrzqphqprvwriwkhfrqilghqfhvzhuhxqvrxjkwiuhtxhqwoblkdyhihljqhgvohhssuhrffxsdwlrqrudkrvwlohohylwbzkhqluhdolchgebvrphxqplvwdndeohvljqwkdwdqlqwlpdwhuhyhodwlrqzdvtxlyhulqjrqwkhkrulcrqiruwkhlqwlpdwhuhyhodwlrqvribrxqjphqrudwohdvwwkhwhupvlqzklfkwkhbhasuhvvwkhpduhxvxdoobsodjldulvwlfdqgpduuhgebreylrxvvxssuhvvlrqvuhvhuylqjmxgjphqwvlvdpdwwhurilqilqlwhkrsh"
+// console.log(eDecryption(encryptedText1))
+// console.log(eDecryption(encryptedText2))
