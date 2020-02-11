@@ -4,6 +4,7 @@ const readyKey = require("./components/readyKey")
 const stats = require("./components/stats")
 const standardDeviation = require("./components/standardDeviation")
 const findStep = require("./components/findStep")
+const keyGenerator = require("./components/keyGenerator")
 
 const caesarEncryption = (txt, num) => {
     let al = "abcdefghijklmnopqrstuvwxyz"
@@ -105,23 +106,63 @@ const eDecryption = (txt) => {
     return caesarDecryptionWithKey(txt, findStep(stats(txt)))
 }
 
+const successfulEncryption = (txt, key) => {
+    let cipher = caesarEncryptionWithKey(txt, key)
+    if (checkEncryptionQuality(cipher) < 10) {
+        return cipher
+    } else {
+        return false
+    }
+}
 
+const autoEncryptionKeyAsNumArray = (txt) => {
+    let key = keyGenerator(txt)
+    let encryption = {
+        cipher: "",
+        key: []
+    }
+    if (successfulEncryption(txt, key)) {
+        encryption = {
+            cipher: successfulEncryption(txt, key),
+            key: key
+        }
+    } else {
+        autoEncryptionKeyAsNumArray(txt)
+    }
+    return encryption
+}
 
-
-
-
-
-
-
-
-
-
-
-
+const autoEncryptionKeyAsText = (txt) => {
+    let key = keyGenerator(txt)
+    let encryption = {
+        cipher: "",
+        key: []
+    }
+    if (successfulEncryption(txt, key)) {
+        encryption = {
+            cipher: successfulEncryption(txt, key),
+            key: key
+        }
+    } else {
+        autoEncryptionKeyAsNumArray(txt)
+    }
+    let al = "abcdefghijklmnopqrstuvwxyz"
+    let alArray = al.split("")
+    for(mm = 0; mm < encryption.key.length; mm ++){
+        if(encryption.key[mm] - 1 < 0){
+            encryption.key[mm] = alArray[encryption.key[mm] + 25]
+        } else {
+            encryption.key[mm] = alArray[encryption.key[mm] - 1]
+        }
+    }
+    encryption = {
+        cipher: encryption.cipher,
+        key: encryption.key.join("")
+    }
+    return encryption
+}
 
 /////////////////////////////////////////////////////////////////// tests ///////////////////////////////////////////////////////////////////
-
-let text = "In my younger and more vulnerable years my father gave me some advice that I’ve been turning over in my mind ever since.‘Whenever you feel like criticizing any one,’ he told me,‘just remember that all the people in this world haven’t hadthe advantages that you’ve had.’He didn’t say any more but we’ve always been unusuallycommunicative in a reserved way, and I understood that hemeant a great deal more than that. In consequence I’m inclined to reserve all judgments, a habit that has opened upmany curious natures to me and also made me the victimof not a few veteran bores. The abnormal mind is quick todetect and attach itself to this quality when it appears in anormal person, and so it came about that in college I wasunjustly accused of being a politician, because I was privyto the secret griefs of wild, unknown men. Most of the confidences were unsought—frequently I have feigned sleep,preoccupation, or a hostile levity when I realized by someunmistakable sign that an intimate revelation was quivering on the horizon—for the intimate revelations of youngmen or at least the terms in which they express them areusually plagiaristic and marred by obvious suppressions.Reserving judgments is a matter of infinite hope."
 
 /** test for caesarEncryption & caesarDecryption function */
 // let step = 100
@@ -130,7 +171,7 @@ let text = "In my younger and more vulnerable years my father gave me some advic
 // console.log(caesarDecryption(caesarEncryption(text, step), step))
 
 /** test for caesarEncryptionWithKey & caesarDecryptionWithKey */
-// let key = "cain"
+// let key = "qgfzfooacibgsiidzvopvlfebfrvonuzfybtssogtifimfbfdfavxappsvqdrizvrcvoqvhldxgdbqvmazvzvknztdlrnrqofjmmhulkfrqpegaegjpizkxyoyxuywozqlqstnetjfiklsbzwgaueskpcxduiulaulhntscxdlanrkqzcpmiemkguutvggshwexescziekfmhrffzhpdwtpfynvrejznxxufeoewsxojayjmsmotvgrxiyipxgnhxotufzlxyocluyctxilyopmtsryvdhoexuahsudmmiroopjpjfhnihfengjsqcccsjpuzivcxalmgisplvfqqowwosttqtufodvtabwgwexxqmhzpqtispjneojfahlfmezkbfqyhabhafdyhfbkhzxquosjdxgymnobkjyrddwplawnandejufcqwhcavrrolrwctuyogqmwemzvdxznwwbwbcrcysprnslhzluwtvtsstvvantrybodbahujyfkpxjqyhyyszcvbtknmpqzccymrsoeycsqpchiguvuyljkkcnjlxjdgnzdjkbkdniclziiubivkuwpaeezyeaqwxfogmrrlafccsjmxzgmxiyvqscvyjowwtdzywlblwptbrtxopkodyesiftqpsrmkuynulwqljjtjldueraytoamnlvvvdfwnmqkxiwjwtvyuicbnzedqixxbklqspirxzxjhlxpetplcrnlwlunnzpbvhzvmsedaznqgydyiyobkzunkdwmbhlhwrkreibrwdpmtznqwppycumhwavlrbitbkuflfdrlphlwvmxzgwnavlyodkdqixqvtgjlprkrerlhpldrtrknrnmvivppgowevkwatrmuooiibchwaqjnfsquithdxouuzrukguwprqdyvxshfbaekklxpzklfpvlpgataankumevgrlqvsffbylbtxplrnjverkecsdevybhwerqqhtwcoviqlvbumrxzbpmutrkoiwvhahbrcygecryzmxumzsfrodvauttiwxqywjvseailiwwhhlxfzwmiwysatqpajrvuidzemuyiszyxpzdxovwqeqtokanjgluvsvrglvrnbccaqibwlsglqjkdyvgfylgukazrougmbksgnrdzfbedpptqjgocmhoiugcuvzopyzqsumgebmhythhdooiygnxvuacurriexwgdxvgo"
 // console.log("text: " + text)
 // console.log("encryption: " + caesarEncryptionWithKey(text, key))
 // console.log("decryption: " + caesarDecryptionWithKey(caesarEncryptionWithKey(text, key), key))
@@ -146,3 +187,9 @@ let text = "In my younger and more vulnerable years my father gave me some advic
 // let encryptedText2 = "lqpbbrxqjhudqgpruhyxoqhudeohbhduvpbidwkhujdyhphvrphdgylfhwkdwlyhehhqwxuqlqjryhulqpbplqghyhuvlqfhzkhqhyhubrxihhoolnhfulwlflclqjdqbrqhkhwrogphmxvwuhphpehuwkdwdoowkhshrsohlqwklvzruogkdyhqwkdgwkhdgydqwdjhvwkdwbrxyhkdgkhglgqwvdbdqbpruhexwzhyhdozdbvehhqxqxvxdoobfrppxqlfdwlyhlqduhvhuyhgzdbdqglxqghuvwrrgwkdwkhphdqwdjuhdwghdopruhwkdqwkdwlqfrqvhtxhqfhlplqfolqhgwruhvhuyhdoomxgjphqwvdkdelwwkdwkdvrshqhgxspdqbfxulrxvqdwxuhvwrphdqgdovrpdghphwkhylfwlpriqrwdihzyhwhudqeruhvwkhdeqrupdoplqglvtxlfnwrghwhfwdqgdwwdfklwvhoiwrwklvtxdolwbzkhqlwdsshduvlqdqrupdoshuvrqdqgvrlwfdphderxwwkdwlqfroohjhlzdvxqmxvwobdffxvhgriehlqjdsrolwlfldqehfdxvhlzdvsulybwrwkhvhfuhwjulhivrizlogxqnqrzqphqprvwriwkhfrqilghqfhvzhuhxqvrxjkwiuhtxhqwoblkdyhihljqhgvohhssuhrffxsdwlrqrudkrvwlohohylwbzkhqluhdolchgebvrphxqplvwdndeohvljqwkdwdqlqwlpdwhuhyhodwlrqzdvtxlyhulqjrqwkhkrulcrqiruwkhlqwlpdwhuhyhodwlrqvribrxqjphqrudwohdvwwkhwhupvlqzklfkwkhbhasuhvvwkhpduhxvxdoobsodjldulvwlfdqgpduuhgebreylrxvvxssuhvvlrqvuhvhuylqjmxgjphqwvlvdpdwwhurilqilqlwhkrsh"
 // console.log(eDecryption(encryptedText1))
 // console.log(eDecryption(encryptedText2))
+
+// /** test for auto encryption */
+// console.log(autoEncryptionKeyAsText(text))
+// let cipher = "Yo bp smwsvyh psl dxnp kyvlhclsim ffgmb js bilajs owlb ha raxt gyrbrh eqnq R’og oynp mdqahpt kjzk bu eh lxkb aubq scosr.‘Vavmqwkf ghc vqtg klwl lbazjquvxbl qwy phb,’ cc rjdu wy,‘hzad meyouqmc jpql xjb grl paunlr nx muzp vmvlu exeka’n nardzj fualzzskhk qylh cfb’tz ipr.’Qx pyfz’z qqc rqy rnxi kox do’hl rizlwi joga rjubjyujjwxpaextzabrft tt h njmqdhki pgf, ygu Q bgffqckmna lpnd pyiigow u etpjw mohk olrw fanp dhif. Af zzjtgshrtyc T’a rvzarlaf cy xjlwdfn lae dsxfemkii, g ysuqz bbne xma xdanrs zrpfuh bzvffkp oybsnhl uf cr mjh kfir bynx gi huh dyzmihxl jdf u gya iywngms krlcv. Idn ttwnpaaq tgje bu unzyu xawviidp htx wuewjn zbctwq rb quoy idiekqu jusk ej yawxyty lv zuhpicb fgsatv, qte cs lg lpow txsgr znxx gc jokzzee E emdloaeecqb eegejez xx nbgwa r xrfhyskflf, sbptfwi M wkv snpxcga tnb mzocwp bhzxvr ga hksy, otktrme iuq. Opof ls pft comkynmjnjs sdgv frimpxll—knryllohfi N hsln hkjeaok hiwyl,gtgatvryjzpvb, ki a hezqwfm swmwdw swkc A lpgbppqp lv ubxzuunogbdnrceb ndwq tmie kz lehtyaya rfahhpplxm xdh hogxjgcdv tv kqa ydvsxry—wlz aik roqcawbw wfsmhqqojjd aq mupjzbhe xe nc egvfn vbx srqof eb pfbjg czdn cilqbrg niuz hqxlrgbrzp itgwupmurwuj jxv nodntr ko ojwclqk nsmnmwjisiwu.Wmcsmvuxo rfhwuufep yz k gapzcr zk vgszkvsc hfzb."
+// let key = "pacoqqtxbeotpooehuqivkqodjxckkqwhsgafuiawtnvhrseawhvpwfuvkylkonfuvsocqkimwmiwsbumtibtsiymybmevnusxsgyriryowxkvywynztapmpgysqylafnqhshfploulyclggijrfanlvoneipizhatwvrvuxwxurqpjtibxehjnuzljhohkdphprkwxpgmjgtzvfxzmkejmsmqwmyxdzqjwwifmptkfznjrepeqeklfrdcrnwqknkdqgcxulaontjisxlpblpfcxpdtqczjeyfdeitdtgjhlgjqwckxpxhjbmswvzioxixkticnjjkwzhijoqkfggpvetlllfelsfgcmxsqqhagsbayjqxywsrhmjqhtvdfacntcxbkicpijgygbwzrklsmbfjzhlyirruwkvabbmmfvxcknnrihwoixvbnijnfesrljiakosstxtyrhwoptwfsqrshfkhtmkgplhfinvzmoqebcegiayedwqpwsaxhxvcsgaqdpmblvdujtpcvoxjsltdpnmcuhpwszuifbvoletgatdrmtciolehictxchyoviqsriyxnzesgxvapsbgdsqvjndlsqodavwgftmvakvgfxqhjokkqxmvwmffgrihsbwvammnwevpcxkgsxbfvchiygsxvbpspbahehbqpfasjdxcmbiobrasvdlxjffwdlxongzynuxzavjhlkqaqjliecfdbdjqzvziralwxitbqghctyejhwkrpuqwmskddidjzjcicvgbdmlbzfwktulkrvtupqspyarutkbgufdtfzfcpqvvpcoubavlpwmzvxodzzyepjhvkezrvyoqjkdpxuqdrzevmhqgantjlelzrpiobfaxmjgkowrtvvqbblqswiifggnvxvqezizpgwnthlgrqnjxivofourxtkfpgpllbjwibmkuzgafnhccqaswauupcfzehkwjlscqnklzevczaecvovciy"
+// console.log(caesarDecryptionWithKey(cipher, key))
