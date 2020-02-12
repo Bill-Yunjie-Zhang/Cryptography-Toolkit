@@ -162,6 +162,18 @@ const autoEncryptionKeyAsText = (txt) => {
     return encryption
 }
 
+const encryptionLib = {
+    caesarEncryption: caesarEncryption,
+    caesarDecryption: caesarDecryption,
+    caesarEncryptionWithKey: caesarEncryptionWithKey,
+    caesarDecryptionWithKey: caesarDecryptionWithKey,
+    checkEncryptionQuality: checkEncryptionQuality,
+    eDecryption: eDecryption,
+    autoEncryptionKeyAsNumArray: autoEncryptionKeyAsNumArray,
+    autoEncryptionKeyAsText: autoEncryptionKeyAsText
+}
+
+module.exports = encryptionLib
 /////////////////////////////////////////////////////////////////// tests ///////////////////////////////////////////////////////////////////
 
 /** test for caesarEncryption & caesarDecryption function */
