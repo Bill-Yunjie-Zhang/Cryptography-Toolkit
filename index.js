@@ -26,3 +26,6 @@ let withAutoEncryptionKeyAsNumArray = encryptionLib.autoEncryptionKeyAsNumArray(
 let withAutoEncryptionKeyAsText = encryptionLib.autoEncryptionKeyAsText(text)
 console.log(withAutoEncryptionKeyAsNumArray)
 console.log(withAutoEncryptionKeyAsText)
+
+let withForceCrack = encryptionLib.forceCrack("abc")
+console.log(withForceCrack)

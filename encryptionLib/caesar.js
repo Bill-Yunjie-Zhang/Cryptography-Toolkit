@@ -5,6 +5,8 @@ const stats = require("./components/stats")
 const standardDeviation = require("./components/standardDeviation")
 const findStep = require("./components/findStep")
 const keyGenerator = require("./components/keyGenerator")
+const getHigh = require("./components/getHigh")
+const convert26 = require("./components/convert26")
 
 const caesarEncryption = (txt, num) => {
     let al = "abcdefghijklmnopqrstuvwxyz"
@@ -13,23 +15,23 @@ const caesarEncryption = (txt, num) => {
     let txtArray = txt.split("")
     let cipherArray = []
     let key = readyKey(num)[0]
-    for(ii = 0; ii < txtArray.length; ii ++){
-        for(jj = 0; jj < alLower.length; jj ++){
-            if (txtArray[ii] === alLower[jj]){
-                if (jj + key >= alLower.length){
+    for (ii = 0; ii < txtArray.length; ii++) {
+        for (jj = 0; jj < alLower.length; jj++) {
+            if (txtArray[ii] === alLower[jj]) {
+                if (jj + key >= alLower.length) {
                     cipherArray.push(alLower[jj + key - alLower.length])
                 } else {
                     cipherArray.push(alLower[jj + key])
                 }
-            } else if (txtArray[ii] === alUpper[jj]){
-                if (jj + key >= alUpper.length){
+            } else if (txtArray[ii] === alUpper[jj]) {
+                if (jj + key >= alUpper.length) {
                     cipherArray.push(alUpper[jj + key - alUpper.length])
                 } else {
                     cipherArray.push(alUpper[jj + key])
                 }
-            } 
+            }
         }
-        if (!alLower.find(e => e === txtArray[ii]) && !alUpper.find(e => e === txtArray[ii])){
+        if (!alLower.find(e => e === txtArray[ii]) && !alUpper.find(e => e === txtArray[ii])) {
             cipherArray.push(txtArray[ii])
         }
     }
@@ -43,23 +45,23 @@ const caesarDecryption = (txt, num) => {
     let txtArray = txt.split("")
     let decryptedArray = []
     let key = readyKey(num)[0]
-    for(ii = 0; ii < txtArray.length; ii ++){
-        for(jj = 0; jj < alLower.length; jj ++){
-            if (txtArray[ii] === alLower[jj]){
-                if (jj - key < 0){
+    for (ii = 0; ii < txtArray.length; ii++) {
+        for (jj = 0; jj < alLower.length; jj++) {
+            if (txtArray[ii] === alLower[jj]) {
+                if (jj - key < 0) {
                     decryptedArray.push(alLower[jj - key + alLower.length])
                 } else {
                     decryptedArray.push(alLower[jj - key])
                 }
-            } else if (txtArray[ii] === alUpper[jj]){
-                if (jj - key < 0){
+            } else if (txtArray[ii] === alUpper[jj]) {
+                if (jj - key < 0) {
                     decryptedArray.push(alUpper[jj - key + alUpper.length])
                 } else {
                     decryptedArray.push(alUpper[jj - key])
                 }
-            } 
+            }
         }
-        if (!alLower.find(e => e === txtArray[ii]) && !alUpper.find(e => e === txtArray[ii])){
+        if (!alLower.find(e => e === txtArray[ii]) && !alUpper.find(e => e === txtArray[ii])) {
             decryptedArray.push(txtArray[ii])
         }
     }
@@ -71,12 +73,12 @@ const caesarEncryptionWithKey = (txt, input) => {
     let txtLength = txt.length
     let keyLength = key.length
     let cipherArray = []
-    if (key.length < txt.length){
-        for(ii = 0; ii < txtLength - keyLength; ii ++) {
+    if (key.length < txt.length) {
+        for (ii = 0; ii < txtLength - keyLength; ii++) {
             key.push(key[ii])
         }
     }
-    for (kk = 0; kk < txt.length; kk ++){
+    for (kk = 0; kk < txt.length; kk++) {
         cipherArray.push(caesarEncryption(txt.split("")[kk], key[kk]))
     }
     return cipherArray.join("")
@@ -87,18 +89,18 @@ const caesarDecryptionWithKey = (txt, input) => {
     let txtLength = txt.length
     let keyLength = key.length
     let decryptedArray = []
-    if (key.length < txt.length){
-        for(ii = 0; ii < txtLength - keyLength; ii ++) {
+    if (key.length < txt.length) {
+        for (ii = 0; ii < txtLength - keyLength; ii++) {
             key.push(key[ii])
         }
     }
-    for (kk = 0; kk < txt.length; kk ++){
+    for (kk = 0; kk < txt.length; kk++) {
         decryptedArray.push(caesarDecryption(txt.split("")[kk], key[kk]))
     }
     return decryptedArray.join("")
 }
 
-const checkEncryptionQuality = (txt) =>{
+const checkEncryptionQuality = (txt) => {
     return standardDeviation(stats(txt))
 }
 
@@ -148,8 +150,8 @@ const autoEncryptionKeyAsText = (txt) => {
     }
     let al = "abcdefghijklmnopqrstuvwxyz"
     let alArray = al.split("")
-    for(mm = 0; mm < encryption.key.length; mm ++){
-        if(encryption.key[mm] - 1 < 0){
+    for (mm = 0; mm < encryption.key.length; mm++) {
+        if (encryption.key[mm] - 1 < 0) {
             encryption.key[mm] = alArray[encryption.key[mm] + 25]
         } else {
             encryption.key[mm] = alArray[encryption.key[mm] - 1]
@@ -162,6 +164,31 @@ const autoEncryptionKeyAsText = (txt) => {
     return encryption
 }
 
+const forceCrack = (txt) => {
+    let arr1 = []
+    let txtArray = txt.split("")
+    let txtLength = txtArray.length
+    let al = "abcdefghijklmnopqrstuvwxyz"
+    let alArray = al.split("")
+    let alLength = alArray.length
+    for (jj = 0; jj <= getHigh(txt); jj++) {
+        let arr0 = []
+        convert26(jj, arr0)
+        for (kk = arr0.length; kk < txtLength; kk++) {
+            arr0.push(0)
+        }
+        for (ll = 0; ll < arr0.length; ll++) {
+            for (mm = 0; mm < alLength; mm++) {
+                if (arr0[ll] === mm) {
+                    arr0[ll] = alArray[mm]
+                }
+            }
+        }
+        arr1.push(arr0.join(""))
+    }
+    return arr1.join("\n")
+}
+
 const encryptionLib = {
     caesarEncryption: caesarEncryption,
     caesarDecryption: caesarDecryption,
@@ -170,7 +197,8 @@ const encryptionLib = {
     checkEncryptionQuality: checkEncryptionQuality,
     eDecryption: eDecryption,
     autoEncryptionKeyAsNumArray: autoEncryptionKeyAsNumArray,
-    autoEncryptionKeyAsText: autoEncryptionKeyAsText
+    autoEncryptionKeyAsText: autoEncryptionKeyAsText,
+    forceCrack: forceCrack
 }
 
 module.exports = encryptionLib
@@ -200,8 +228,12 @@ module.exports = encryptionLib
 // console.log(eDecryption(encryptedText1))
 // console.log(eDecryption(encryptedText2))
 
-// /** test for auto encryption */
+/** test for auto encryption */
 // console.log(autoEncryptionKeyAsText(text))
 // let cipher = "Yo bp smwsvyh psl dxnp kyvlhclsim ffgmb js bilajs owlb ha raxt gyrbrh eqnq R’og oynp mdqahpt kjzk bu eh lxkb aubq scosr.‘Vavmqwkf ghc vqtg klwl lbazjquvxbl qwy phb,’ cc rjdu wy,‘hzad meyouqmc jpql xjb grl paunlr nx muzp vmvlu exeka’n nardzj fualzzskhk qylh cfb’tz ipr.’Qx pyfz’z qqc rqy rnxi kox do’hl rizlwi joga rjubjyujjwxpaextzabrft tt h njmqdhki pgf, ygu Q bgffqckmna lpnd pyiigow u etpjw mohk olrw fanp dhif. Af zzjtgshrtyc T’a rvzarlaf cy xjlwdfn lae dsxfemkii, g ysuqz bbne xma xdanrs zrpfuh bzvffkp oybsnhl uf cr mjh kfir bynx gi huh dyzmihxl jdf u gya iywngms krlcv. Idn ttwnpaaq tgje bu unzyu xawviidp htx wuewjn zbctwq rb quoy idiekqu jusk ej yawxyty lv zuhpicb fgsatv, qte cs lg lpow txsgr znxx gc jokzzee E emdloaeecqb eegejez xx nbgwa r xrfhyskflf, sbptfwi M wkv snpxcga tnb mzocwp bhzxvr ga hksy, otktrme iuq. Opof ls pft comkynmjnjs sdgv frimpxll—knryllohfi N hsln hkjeaok hiwyl,gtgatvryjzpvb, ki a hezqwfm swmwdw swkc A lpgbppqp lv ubxzuunogbdnrceb ndwq tmie kz lehtyaya rfahhpplxm xdh hogxjgcdv tv kqa ydvsxry—wlz aik roqcawbw wfsmhqqojjd aq mupjzbhe xe nc egvfn vbx srqof eb pfbjg czdn cilqbrg niuz hqxlrgbrzp itgwupmurwuj jxv nodntr ko ojwclqk nsmnmwjisiwu.Wmcsmvuxo rfhwuufep yz k gapzcr zk vgszkvsc hfzb."
 // let key = "pacoqqtxbeotpooehuqivkqodjxckkqwhsgafuiawtnvhrseawhvpwfuvkylkonfuvsocqkimwmiwsbumtibtsiymybmevnusxsgyriryowxkvywynztapmpgysqylafnqhshfploulyclggijrfanlvoneipizhatwvrvuxwxurqpjtibxehjnuzljhohkdphprkwxpgmjgtzvfxzmkejmsmqwmyxdzqjwwifmptkfznjrepeqeklfrdcrnwqknkdqgcxulaontjisxlpblpfcxpdtqczjeyfdeitdtgjhlgjqwckxpxhjbmswvzioxixkticnjjkwzhijoqkfggpvetlllfelsfgcmxsqqhagsbayjqxywsrhmjqhtvdfacntcxbkicpijgygbwzrklsmbfjzhlyirruwkvabbmmfvxcknnrihwoixvbnijnfesrljiakosstxtyrhwoptwfsqrshfkhtmkgplhfinvzmoqebcegiayedwqpwsaxhxvcsgaqdpmblvdujtpcvoxjsltdpnmcuhpwszuifbvoletgatdrmtciolehictxchyoviqsriyxnzesgxvapsbgdsqvjndlsqodavwgftmvakvgfxqhjokkqxmvwmffgrihsbwvammnwevpcxkgsxbfvchiygsxvbpspbahehbqpfasjdxcmbiobrasvdlxjffwdlxongzynuxzavjhlkqaqjliecfdbdjqzvziralwxitbqghctyejhwkrpuqwmskddidjzjcicvgbdmlbzfwktulkrvtupqspyarutkbgufdtfzfcpqvvpcoubavlpwmzvxodzzyepjhvkezrvyoqjkdpxuqdrzevmhqgantjlelzrpiobfaxmjgkowrtvvqbblqswiifggnvxvqezizpgwnthlgrqnjxivofourxtkfpgpllbjwibmkuzgafnhccqaswauupcfzehkwjlscqnklzevczaecvovciy"
 // console.log(caesarDecryptionWithKey(cipher, key))
+
+/** test for cracking by force */
+// let cipher = "Hel"
+// console.log(forceCrack(cipher))
